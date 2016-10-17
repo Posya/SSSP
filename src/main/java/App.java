@@ -20,16 +20,17 @@ public class App {
         ProjectionMetrics metrics = new ProjectionMetrics(metricRegistry);
 
         ClientProjection clientProjection = new ClientProjection(metrics);
-        NaivePool naivePool = new NaivePool(10, clientProjection, metricRegistry);
 
         EventStream es = new EventStreamImpl();
-        es.consume(naivePool);
 
-        //noinspection ResultOfMethodCallIgnored
-        System.in.read();
+        try (NaivePool naivePool = new NaivePool(20, clientProjection, metricRegistry)) {
+            es.consume(naivePool);
+            //noinspection ResultOfMethodCallIgnored
+            System.in.read();
+            Schedulers.shutdown();
+        }
 
         metrics.stop();
-        Schedulers.shutdown();
 
         log.info("End");
 
